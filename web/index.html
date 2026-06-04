@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cv2offer</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>cv2offer</h1>
+          <p>Local CV to offer workflow: JD, resume, interview prep, copilot.</p>
+        </div>
+        <div class="top-actions">
+          <button id="healthBtn">Check Server</button>
+          <button id="runtimeCheckBtn">Runtime Checks</button>
+        </div>
+      </header>
+
+      <section class="grid">
+        <section class="panel">
+          <h2>JD Scan + Resume</h2>
+          <label>Target JD</label>
+          <textarea id="jdText"></textarea>
+          <label>Resume</label>
+          <textarea id="resumeText"></textarea>
+          <button id="runJdBtn">Run JD Resume Worker</button>
+          <button id="promoteBtn" disabled>Set As Active Context</button>
+          <p id="resumeStatus" class="status">Step 1: run JD resume worker.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Interview Prep Coach</h2>
+          <p>Generate a prep pack or run an interactive coaching loop: TTS question, answer, ASR/text transcript, LLM feedback, saved session.</p>
+          <button id="refreshContextBtn">Refresh Active Context</button>
+          <button id="prepBtn" disabled>Generate 5Q Prep Pack</button>
+          <button id="startCoachBtn" disabled>Start Coaching</button>
+          <p id="contextStatus" class="status">No active context loaded yet.</p>
+          <div class="coach">
+            <p id="coachQuestion" class="question">No coaching session started.</p>
+            <audio id="questionAudio" controls></audio>
+            <label>Your Answer</label>
+            <textarea id="answerText" placeholder="Type your answer here. Backend also supports audio_base64 for ASR."></textarea>
+            <div>
+              <button id="recordBtn" disabled>Start Recording</button>
+              <button id="stopRecordBtn" disabled>Stop Recording</button>
+            </div>
+            <p id="recordStatus" class="status">Recording not started.</p>
+            <button id="submitAnswerBtn" disabled>Submit Answer + Get Feedback</button>
+            <div id="coachFeedback" class="feedback" aria-live="polite">
+              <p class="empty">Feedback will appear here after you submit an answer.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Live Copilot</h2>
+          <p>Process-managed worker. Mock mode writes live question/hint events; real mode listens to BlackHole system audio.</p>
+          <button id="copilotStartBtn">Start Copilot</button>
+          <button id="copilotStatusBtn">Status</button>
+          <button id="copilotStopBtn">Stop</button>
+          <pre id="copilotLog" class="mini-log"></pre>
+        </section>
+      </section>
+
+      <section class="context-editor">
+        <div class="section-heading">
+          <h2>Active Context Editor</h2>
+          <p>Edit the exact JD, resume, and QA memory used by coaching and copilot.</p>
+        </div>
+        <div class="context-grid">
+          <label>
+            Active JD
+            <textarea id="activeJdText"></textarea>
+          </label>
+          <label>
+            Active Resume
+            <textarea id="activeResumeText"></textarea>
+          </label>
+          <label>
+            Active QA
+            <textarea id="activeQaText"></textarea>
+          </label>
+        </div>
+        <button id="saveContextBtn" disabled>Save Active Context</button>
+        <p id="saveContextStatus" class="status">Load active context before editing.</p>
+      </section>
+
+      <section class="tracking-panel">
+        <div class="section-heading">
+          <h2>SQLite Tracking</h2>
+          <p>Local database view for jobs, resume versions, sessions, and events.</p>
+        </div>
+        <button id="refreshTrackingBtn">Refresh Tracking</button>
+        <div id="trackingSummary" class="tracking-summary">
+          <p class="status">No tracking data loaded yet.</p>
+        </div>
+      </section>
+
+      <section class="output">
+        <h2>Output</h2>
+        <pre id="log"></pre>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

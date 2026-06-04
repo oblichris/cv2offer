@@ -1,0 +1,280 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7f8;
+  color: #1d252b;
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.top-actions button {
+  margin: 0;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.panel,
+.context-editor,
+.tracking-panel,
+.output {
+  background: #ffffff;
+  border: 1px solid #d8e0e5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 12px 0 6px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  border: 1px solid #c5d0d8;
+  border-radius: 6px;
+  padding: 10px;
+  font: inherit;
+}
+
+button {
+  margin: 10px 8px 0 0;
+  border: 1px solid #184b5f;
+  border-radius: 6px;
+  background: #1f6f8b;
+  color: #ffffff;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #a8b7c0;
+  border-color: #a8b7c0;
+  cursor: not-allowed;
+}
+
+.status {
+  margin: 10px 0 0;
+  color: #50616b;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.output {
+  margin-top: 16px;
+}
+
+.context-editor {
+  margin-top: 16px;
+}
+
+.tracking-panel {
+  margin-top: 16px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.section-heading p {
+  color: #50616b;
+  font-size: 13px;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.context-grid textarea {
+  min-height: 180px;
+  margin-top: 6px;
+}
+
+.tracking-summary {
+  margin-top: 12px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat {
+  border: 1px solid #d8e0e5;
+  border-radius: 6px;
+  padding: 10px;
+  background: #f9fbfc;
+}
+
+.stat span {
+  display: block;
+  color: #50616b;
+  font-size: 12px;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 22px;
+  color: #1d252b;
+}
+
+.tracking-lists {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tracking-lists h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #184b5f;
+}
+
+.tracking-lists ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tracking-lists li {
+  border-top: 1px solid #e3e9ed;
+  padding: 8px 0;
+}
+
+.tracking-lists li strong,
+.tracking-lists li span {
+  display: block;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.tracking-lists li span {
+  color: #50616b;
+  margin-top: 3px;
+}
+
+pre {
+  min-height: 220px;
+  white-space: pre-wrap;
+  overflow: auto;
+  background: #111820;
+  color: #e8f4f8;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.coach {
+  margin-top: 12px;
+  border-top: 1px solid #d8e0e5;
+  padding-top: 12px;
+}
+
+.question {
+  min-height: 44px;
+  font-weight: 600;
+  color: #22323a;
+}
+
+.feedback {
+  margin-top: 12px;
+  border: 1px solid #d8e0e5;
+  border-radius: 6px;
+  background: #f9fbfc;
+  padding: 12px;
+}
+
+.feedback .empty {
+  margin: 0;
+  color: #667781;
+  font-size: 13px;
+}
+
+.feedback-block + .feedback-block {
+  margin-top: 12px;
+}
+
+.feedback h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #184b5f;
+}
+
+.feedback p {
+  margin: 0;
+  color: #253640;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+audio {
+  width: 100%;
+  margin: 8px 0;
+}
+
+.mini-log {
+  min-height: 180px;
+  max-height: 260px;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .grid,
+  .context-grid,
+  .stats,
+  .tracking-lists,
+  .topbar {
+    grid-template-columns: 1fr;
+    display: block;
+  }
+
+  .top-actions {
+    justify-content: flex-start;
+  }
+}
