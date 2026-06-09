@@ -134,6 +134,20 @@ def update_active_context(request: ActiveContextUpdateRequest):
     }
 
 
+def resolve_output_audio_path(path: str) -> Path:
+    settings = get_settings()
+    requested = Path(path)
+    if not requested.is_absolute():
+        requested = ROOT / requested
+    requested = requested.resolve()
+    output_root = settings.output_dir.resolve()
+    try:
+        requested.relative_to(output_root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Audio files must be under the configured output directory.") from exc
+    return requested
+
+
 @app.post("/api/interview-prep")
 def run_interview_prep(request: InterviewPrepRequest | None = None):
     try:
@@ -160,9 +174,7 @@ def answer_interactive_interview_prep(request: InterviewAnswerRequest):
 
 @app.get("/api/files/audio")
 def get_audio(path: str):
-    file_path = Path(path)
-    if not file_path.is_absolute():
-        file_path = ROOT / file_path
+    file_path = resolve_output_audio_path(path)
     if not file_path.exists():
         raise HTTPException(status_code=404, detail=f"Missing audio file: {file_path}")
     media_type = "audio/mpeg" if file_path.suffix.lower() == ".mp3" else "audio/wav"
