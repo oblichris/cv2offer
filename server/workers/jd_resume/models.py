@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class JDResumeRequest(BaseModel):
-    jd_text: str
-    resume_text: str
+    jd_text: str = Field(..., min_length=1)
+    resume_text: str = Field(..., min_length=1)
     title: str = "Sample AI Product Manager"
     company: str | None = None
     run_id: str | None = None
