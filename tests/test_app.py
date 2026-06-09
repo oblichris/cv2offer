@@ -106,3 +106,27 @@ def test_interview_session_api_flow(isolated_env, tmp_path):
 
     assert answer.status_code == 200
     assert answer.json()["next_question"]
+
+
+def test_audio_file_endpoint_serves_output_audio(isolated_env):
+    audio_path = isolated_env.output_dir / "sessions" / "sample.wav"
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    audio_path.write_bytes(b"RIFF....WAVE")
+
+    with TestClient(app) as client:
+        response = client.get("/api/files/audio", params={"path": str(audio_path)})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("audio/wav")
+    assert response.content == b"RIFF....WAVE"
+
+
+def test_audio_file_endpoint_rejects_paths_outside_output_dir(isolated_env, tmp_path):
+    private_file = tmp_path / "private.txt"
+    private_file.write_text("private marker", encoding="utf-8")
+
+    with TestClient(app) as client:
+        response = client.get("/api/files/audio", params={"path": str(private_file)})
+
+    assert response.status_code == 400
+    assert "output directory" in response.json()["detail"]
