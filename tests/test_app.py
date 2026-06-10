@@ -130,3 +130,58 @@ def test_audio_file_endpoint_rejects_paths_outside_output_dir(isolated_env, tmp_
 
     assert response.status_code == 400
     assert "output directory" in response.json()["detail"]
+
+
+def test_health_endpoint(isolated_env):
+    with TestClient(app) as client:
+        response = client.get("/api/health")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["mock"] == "True"
+
+
+def test_jd_resume_rejects_empty_jd_text(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/jd-resume",
+            json={"jd_text": "", "resume_text": "valid resume", "title": "Role"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_jd_resume_rejects_empty_resume_text(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/jd-resume",
+            json={"jd_text": "valid JD", "resume_text": "", "title": "Role"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_interview_answer_rejects_empty_run_id(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/interview-prep/session/answer",
+            json={"run_id": "", "question_index": 1, "answer_text": "answer"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_events_endpoint_returns_stored_events(isolated_env):
+    with TestClient(app) as client:
+        resp = client.post(
+            "/api/jd-resume",
+            json={"jd_text": "AI PM JD", "resume_text": "AI PM resume", "title": "AI PM"},
+        )
+        run_id = resp.json()["run_id"]
+        events_resp = client.get(f"/api/events/{run_id}")
+
+    assert events_resp.status_code == 200
+    events = events_resp.json()["events"]
+    assert len(events) >= 1
+    assert events[0]["run_id"] == run_id
