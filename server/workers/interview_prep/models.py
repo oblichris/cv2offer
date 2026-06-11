@@ -15,7 +15,7 @@ class InterviewPrepResult(BaseModel):
 
 
 class InterviewSessionStartRequest(BaseModel):
-    question_count: int | None = None
+    question_count: int | None = Field(None, ge=1)
 
 
 class InterviewSessionStartResult(BaseModel):
