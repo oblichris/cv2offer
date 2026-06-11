@@ -172,6 +172,26 @@ def test_interview_answer_rejects_empty_run_id(isolated_env):
     assert response.status_code == 422
 
 
+def test_interview_answer_rejects_zero_question_index(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/interview-prep/session/answer",
+            json={"run_id": "some-run", "question_index": 0, "answer_text": "answer"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_interview_answer_rejects_negative_question_index(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/interview-prep/session/answer",
+            json={"run_id": "some-run", "question_index": -1, "answer_text": "answer"},
+        )
+
+    assert response.status_code == 422
+
+
 def test_events_endpoint_returns_stored_events(isolated_env):
     with TestClient(app) as client:
         resp = client.post(

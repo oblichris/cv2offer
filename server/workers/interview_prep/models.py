@@ -30,7 +30,7 @@ class InterviewSessionStartResult(BaseModel):
 
 class InterviewAnswerRequest(BaseModel):
     run_id: str = Field(..., min_length=1)
-    question_index: int
+    question_index: int = Field(..., ge=1)
     answer_text: str | None = None
     audio_base64: str | None = None
     audio_mime_type: str = "audio/wav"
