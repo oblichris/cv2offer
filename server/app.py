@@ -15,7 +15,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from server.config import get_settings
 from server.events import sse_lines
@@ -33,8 +33,8 @@ from server.workers.jd_resume.service import generate_resume_tailoring
 
 
 class PromoteRequest(BaseModel):
-    source_jd_path: str
-    source_resume_path: str
+    source_jd_path: str = Field(..., min_length=1)
+    source_resume_path: str = Field(..., min_length=1)
     source_qa_path: str | None = None
     job_id: int | None = None
     resume_version_id: int | None = None
@@ -42,9 +42,9 @@ class PromoteRequest(BaseModel):
 
 
 class ActiveContextUpdateRequest(BaseModel):
-    jd: str
-    resume: str
-    qa: str
+    jd: str = Field(..., min_length=1)
+    resume: str = Field(..., min_length=1)
+    qa: str = Field(..., min_length=1)
 
 
 def ensure_runtime_dirs() -> None:

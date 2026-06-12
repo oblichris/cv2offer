@@ -205,3 +205,89 @@ def test_events_endpoint_returns_stored_events(isolated_env):
     events = events_resp.json()["events"]
     assert len(events) >= 1
     assert events[0]["run_id"] == run_id
+
+
+def test_promote_rejects_empty_source_jd_path(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/context/promote",
+            json={"source_jd_path": "", "source_resume_path": "/some/resume.md"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_promote_rejects_empty_source_resume_path(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/context/promote",
+            json={"source_jd_path": "/some/jd.md", "source_resume_path": ""},
+        )
+
+    assert response.status_code == 422
+
+
+def test_active_context_update_rejects_empty_jd(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "", "resume": "valid resume", "qa": "valid qa"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_active_context_update_rejects_empty_resume(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "valid jd", "resume": "", "qa": "valid qa"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_active_context_update_rejects_empty_qa(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "valid jd", "resume": "valid resume", "qa": ""},
+        )
+
+    assert response.status_code == 422
+
+
+def test_interview_session_start_rejects_zero_question_count(isolated_env, tmp_path):
+    jd = tmp_path / "jd.md"
+    resume = tmp_path / "resume.md"
+    qa = tmp_path / "qa.md"
+    jd.write_text("JD", encoding="utf-8")
+    resume.write_text("Resume", encoding="utf-8")
+    qa.write_text("QA", encoding="utf-8")
+
+    with TestClient(app) as client:
+        client.post(
+            "/api/context/promote",
+            json={"source_jd_path": str(jd), "source_resume_path": str(resume), "source_qa_path": str(qa)},
+        )
+        response = client.post("/api/interview-prep/session/start", json={"question_count": 0})
+
+    assert response.status_code == 422
+
+
+def test_interview_session_start_rejects_negative_question_count(isolated_env, tmp_path):
+    jd = tmp_path / "jd.md"
+    resume = tmp_path / "resume.md"
+    qa = tmp_path / "qa.md"
+    jd.write_text("JD", encoding="utf-8")
+    resume.write_text("Resume", encoding="utf-8")
+    qa.write_text("QA", encoding="utf-8")
+
+    with TestClient(app) as client:
+        client.post(
+            "/api/context/promote",
+            json={"source_jd_path": str(jd), "source_resume_path": str(resume), "source_qa_path": str(qa)},
+        )
+        response = client.post("/api/interview-prep/session/start", json={"question_count": -1})
+
+    assert response.status_code == 422
