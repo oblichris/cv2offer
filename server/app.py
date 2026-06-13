@@ -148,6 +148,22 @@ def resolve_output_audio_path(path: str) -> Path:
     return requested
 
 
+AUDIO_CONTENT_TYPES = {
+    ".mp3": "audio/mpeg",
+    ".wav": "audio/wav",
+    ".ogg": "audio/ogg",
+    ".oga": "audio/ogg",
+    ".webm": "audio/webm",
+    ".m4a": "audio/mp4",
+    ".aac": "audio/aac",
+    ".flac": "audio/flac",
+}
+
+
+def audio_content_type(path: Path) -> str:
+    return AUDIO_CONTENT_TYPES.get(path.suffix.lower(), "application/octet-stream")
+
+
 @app.post("/api/interview-prep")
 def run_interview_prep(request: InterviewPrepRequest | None = None):
     try:
@@ -177,8 +193,7 @@ def get_audio(path: str):
     file_path = resolve_output_audio_path(path)
     if not file_path.exists():
         raise HTTPException(status_code=404, detail=f"Missing audio file: {file_path}")
-    media_type = "audio/mpeg" if file_path.suffix.lower() == ".mp3" else "audio/wav"
-    return FileResponse(file_path, media_type=media_type)
+    return FileResponse(file_path, media_type=audio_content_type(file_path))
 
 
 @app.get("/api/events/{run_id}")

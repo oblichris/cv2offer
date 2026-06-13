@@ -132,6 +132,54 @@ def test_audio_file_endpoint_rejects_paths_outside_output_dir(isolated_env, tmp_
     assert "output directory" in response.json()["detail"]
 
 
+def test_audio_file_endpoint_returns_correct_content_type_for_ogg(isolated_env):
+    audio_path = isolated_env.output_dir / "sessions" / "sample.ogg"
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    audio_path.write_bytes(b"fake-audio")
+
+    with TestClient(app) as client:
+        response = client.get("/api/files/audio", params={"path": str(audio_path)})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("audio/ogg")
+
+
+def test_audio_file_endpoint_returns_correct_content_type_for_webm(isolated_env):
+    audio_path = isolated_env.output_dir / "sessions" / "sample.webm"
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    audio_path.write_bytes(b"fake-audio")
+
+    with TestClient(app) as client:
+        response = client.get("/api/files/audio", params={"path": str(audio_path)})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("audio/webm")
+
+
+def test_audio_file_endpoint_returns_correct_content_type_for_m4a(isolated_env):
+    audio_path = isolated_env.output_dir / "sessions" / "sample.m4a"
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    audio_path.write_bytes(b"fake-audio")
+
+    with TestClient(app) as client:
+        response = client.get("/api/files/audio", params={"path": str(audio_path)})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("audio/mp4")
+
+
+def test_audio_file_endpoint_unknown_extension_returns_octet_stream(isolated_env):
+    audio_path = isolated_env.output_dir / "sessions" / "sample.dat"
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    audio_path.write_bytes(b"fake-audio")
+
+    with TestClient(app) as client:
+        response = client.get("/api/files/audio", params={"path": str(audio_path)})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/octet-stream")
+
+
 def test_health_endpoint(isolated_env):
     with TestClient(app) as client:
         response = client.get("/api/health")
