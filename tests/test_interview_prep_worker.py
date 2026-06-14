@@ -7,7 +7,7 @@ import pytest
 
 from server.services import sqlite_service
 from server.services.context_service import promote_active_context
-from server.workers.interview_prep.models import InterviewAnswerRequest
+from server.workers.interview_prep.models import InterviewAnswerRequest, InterviewSessionStartRequest
 from server.workers.interview_prep.service import generate_interview_prep, numbered_questions, start_interview_session, submit_interview_answer
 
 
@@ -112,3 +112,47 @@ def test_interactive_interview_session_accepts_audio_base64_for_asr(isolated_env
 
     assert "mock ASR 转写" in answered.transcript
     assert "[mock llm]" in answered.feedback
+
+
+def test_interactive_session_respects_fewer_questions_in_mock(isolated_env, tmp_path: Path):
+    prepare_context(isolated_env, tmp_path)
+
+    started = start_interview_session(
+        InterviewSessionStartRequest(question_count=3),
+        settings=isolated_env,
+    )
+
+    assert started.question_count == 3
+    assert started.question_index == 1
+
+
+def test_interactive_session_respects_custom_question_count_in_mock(isolated_env, tmp_path: Path):
+    prepare_context(isolated_env, tmp_path)
+
+    started = start_interview_session(
+        InterviewSessionStartRequest(question_count=2),
+        settings=isolated_env,
+    )
+    answered = submit_interview_answer(
+        InterviewAnswerRequest(
+            run_id=started.run_id,
+            question_index=1,
+            answer_text="第一题回答。",
+        ),
+        settings=isolated_env,
+    )
+
+    assert answered.next_question is not None
+    assert answered.next_audio_path is not None
+
+    final = submit_interview_answer(
+        InterviewAnswerRequest(
+            run_id=started.run_id,
+            question_index=2,
+            answer_text="第二题回答。",
+        ),
+        settings=isolated_env,
+    )
+
+    assert final.next_question is None
+    assert final.next_audio_path is None

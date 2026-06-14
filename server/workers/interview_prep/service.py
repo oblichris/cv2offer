@@ -72,7 +72,7 @@ def parse_numbered_questions(text: str) -> list[str]:
 
 def build_question_list(context: dict[str, str], count: int, settings: Settings) -> list[str]:
     if settings.mock:
-        return get_mock_question_list(5)
+        return get_mock_question_list(count)
     prompt = (
         f"请基于以下JD、简历和QA生成 {count} 道面试前辅导问题。"
         "要求只输出编号列表，每行一道题，不要解释。\n\n"
