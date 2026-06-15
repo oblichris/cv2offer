@@ -58,7 +58,14 @@ def get_mock_question_list(count: int = 5) -> list[str]:
         "如果面试官质疑你技术深度不够，你怎么回应？",
         "请结合你的 QA 准备，说明为什么你适合这个岗位。",
     ]
-    return prompts[:count]
+    if count <= len(prompts):
+        return prompts[:count]
+    padded = list(prompts)
+    index = 0
+    while len(padded) < count:
+        padded.append(prompts[index % len(prompts)])
+        index += 1
+    return padded[:count]
 
 
 def parse_numbered_questions(text: str) -> list[str]:

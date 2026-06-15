@@ -8,7 +8,7 @@ import pytest
 from server.services import sqlite_service
 from server.services.context_service import promote_active_context
 from server.workers.interview_prep.models import InterviewAnswerRequest, InterviewSessionStartRequest
-from server.workers.interview_prep.service import generate_interview_prep, numbered_questions, start_interview_session, submit_interview_answer
+from server.workers.interview_prep.service import generate_interview_prep, get_mock_question_list, numbered_questions, start_interview_session, submit_interview_answer
 
 
 def prepare_context(settings, tmp_path: Path) -> Path:
@@ -156,3 +156,21 @@ def test_interactive_session_respects_custom_question_count_in_mock(isolated_env
 
     assert final.next_question is None
     assert final.next_audio_path is None
+
+
+def test_mock_question_list_pads_beyond_base_pool():
+    questions = get_mock_question_list(8)
+
+    assert len(questions) == 8
+
+
+def test_interactive_session_respects_more_questions_than_mock_pool_in_mock(isolated_env, tmp_path: Path):
+    prepare_context(isolated_env, tmp_path)
+
+    started = start_interview_session(
+        InterviewSessionStartRequest(question_count=8),
+        settings=isolated_env,
+    )
+
+    assert started.question_count == 8
+    assert started.question_index == 1
