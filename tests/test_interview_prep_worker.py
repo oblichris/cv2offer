@@ -174,3 +174,37 @@ def test_interactive_session_respects_more_questions_than_mock_pool_in_mock(isol
 
     assert started.question_count == 8
     assert started.question_index == 1
+
+
+def test_interactive_session_marks_completed_after_final_answer(isolated_env, tmp_path: Path):
+    prepare_context(isolated_env, tmp_path)
+    started = start_interview_session(
+        InterviewSessionStartRequest(question_count=2),
+        settings=isolated_env,
+    )
+    session_id = started.session_id
+
+    submit_interview_answer(
+        InterviewAnswerRequest(
+            run_id=started.run_id,
+            question_index=1,
+            answer_text="第一题回答。",
+        ),
+        settings=isolated_env,
+    )
+    mid_row = sqlite_service.get_row("sessions", session_id, isolated_env.db_path)
+    assert mid_row["status"] == "running"
+
+    submit_interview_answer(
+        InterviewAnswerRequest(
+            run_id=started.run_id,
+            question_index=2,
+            answer_text="最后一题回答。",
+        ),
+        settings=isolated_env,
+    )
+
+    final_row = sqlite_service.get_row("sessions", session_id, isolated_env.db_path)
+    assert final_row["status"] == "completed"
+    stages = [event["stage"] for event in sqlite_service.get_events(started.run_id, isolated_env.db_path)]
+    assert "session_complete" in stages

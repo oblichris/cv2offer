@@ -126,6 +126,15 @@ def create_session(kind: str, status: str = "created", output_path: str | None =
         return int(cursor.lastrowid)
 
 
+def update_session_status(session_id: int, status: str, db_path: Path | None = None) -> None:
+    init_db(db_path)
+    with connect(db_path) as conn:
+        conn.execute(
+            "UPDATE sessions SET status = ?, updated_at = datetime('now') WHERE id = ?",
+            (status, session_id),
+        )
+
+
 def get_row(table: str, row_id: int, db_path: Path | None = None) -> dict[str, Any] | None:
     allowed = {"jobs", "resume_versions", "applications", "qa_packs", "interview_prep_packs", "sessions", "events"}
     if table not in allowed:
