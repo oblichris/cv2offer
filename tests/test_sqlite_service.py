@@ -46,3 +46,13 @@ def test_tracking_summary_counts_and_recent_rows(isolated_env):
     assert summary["counts"]["sessions"] == 1
     assert summary["counts"]["events"] == 1
     assert summary["recent_jobs"][0]["title"] == "AI Product Manager"
+
+
+def test_update_session_status_persists_new_status(isolated_env):
+    session_id = sqlite_service.create_session("interview_prep", "running", db_path=isolated_env.db_path)
+
+    sqlite_service.update_session_status(session_id, "completed", db_path=isolated_env.db_path)
+
+    row = sqlite_service.get_row("sessions", session_id, isolated_env.db_path)
+    assert row["status"] == "completed"
+    assert row["updated_at"] >= row["created_at"]

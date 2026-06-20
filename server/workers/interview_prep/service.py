@@ -265,6 +265,9 @@ def submit_interview_answer(request: InterviewAnswerRequest, settings: Settings 
         next_question = questions[request.question_index]
         next_audio_path = str(write_question_audio(settings, request.run_id, request.question_index + 1, next_question))
         sqlite_service.record_event(request.run_id, "tts_question", f"Generated TTS for question {request.question_index + 1}", {"audio_path": next_audio_path}, db_path=settings.db_path)
+    else:
+        sqlite_service.update_session_status(state["session_id"], "completed", db_path=settings.db_path)
+        sqlite_service.record_event(request.run_id, "session_complete", "Completed interview coaching session", {"session_id": state["session_id"]}, db_path=settings.db_path)
     save_state(settings, request.run_id, state)
     path = Path(state["session_path"])
     path.write_text(render_session_markdown(state), encoding="utf-8")
