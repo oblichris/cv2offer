@@ -158,6 +158,46 @@ def test_interactive_session_respects_custom_question_count_in_mock(isolated_env
     assert final.next_audio_path is None
 
 
+def test_submit_answer_treats_whitespace_only_text_as_empty(isolated_env, tmp_path: Path):
+    prepare_context(isolated_env, tmp_path)
+    started = start_interview_session(settings=isolated_env)
+
+    with pytest.raises(ValueError) as exc:
+        submit_interview_answer(
+            InterviewAnswerRequest(
+                run_id=started.run_id,
+                question_index=1,
+                answer_text="   ",
+            ),
+            settings=isolated_env,
+        )
+
+    assert "Either answer_text or audio_base64 is required" in str(exc.value)
+
+
+def test_submit_answer_reports_clear_error_when_asr_returns_empty(isolated_env, tmp_path: Path, monkeypatch):
+    prepare_context(isolated_env, tmp_path)
+    started = start_interview_session(settings=isolated_env)
+    monkeypatch.setattr(
+        "server.workers.interview_prep.service.transcribe_audio_base64",
+        lambda *args, **kwargs: "",
+    )
+
+    with pytest.raises(ValueError) as exc:
+        submit_interview_answer(
+            InterviewAnswerRequest(
+                run_id=started.run_id,
+                question_index=1,
+                audio_base64="UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=",
+                audio_mime_type="audio/wav",
+            ),
+            settings=isolated_env,
+        )
+
+    assert "empty transcript" in str(exc.value)
+    assert "Either answer_text or audio_base64 is required" not in str(exc.value)
+
+
 def test_mock_question_list_pads_beyond_base_pool():
     questions = get_mock_question_list(8)
 
