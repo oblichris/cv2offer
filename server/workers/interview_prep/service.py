@@ -244,10 +244,14 @@ def submit_interview_answer(request: InterviewAnswerRequest, settings: Settings 
     if request.question_index < 1 or request.question_index > len(questions):
         raise ValueError(f"question_index out of range: {request.question_index}")
     question = questions[request.question_index - 1]
-    transcript = request.answer_text or ""
+    transcript = (request.answer_text or "").strip()
     if not transcript and request.audio_base64:
-        transcript = transcribe_audio_base64(request.audio_base64, request.audio_mime_type)
+        transcript = transcribe_audio_base64(request.audio_base64, request.audio_mime_type).strip()
     if not transcript:
+        if request.audio_base64:
+            raise ValueError(
+                "ASR returned an empty transcript; provide answer_text or clearer audio."
+            )
         raise ValueError("Either answer_text or audio_base64 is required.")
     sqlite_service.record_event(request.run_id, "asr_transcript", "Captured answer transcript", {"question_index": request.question_index}, db_path=settings.db_path)
     feedback = review_interview_answer(question, transcript, state.get("context", {}))
