@@ -15,6 +15,16 @@ def simple_fit_score(jd_text: str, resume_text: str) -> int:
     return min(95, 55 + hits * 5)
 
 
+def fit_summary_text(score: int) -> str:
+    if score >= 85:
+        return "Strong match for this role; lead with these aligned strengths in your application."
+    if score >= 70:
+        return "Solid match with room to strengthen positioning around key JD requirements."
+    if score >= 60:
+        return "Moderate match; tailor your resume to emphasize relevant experience."
+    return "Limited keyword overlap found; align your resume more closely with the JD before applying."
+
+
 def build_resume_report(request: JDResumeRequest, fit_score: int) -> str:
     return f"""# Resume Tailoring Report
 
@@ -101,6 +111,6 @@ def generate_resume_tailoring(request: JDResumeRequest, settings: Settings | Non
         jd_output_path=str(jd_output_path),
         output_path=str(output_path),
         fit_score=fit_score,
-        fit_summary="Strong MVP fit for AI product manager positioning.",
+        fit_summary=fit_summary_text(fit_score),
         next_action="Set as active context before interview preparation.",
     )
