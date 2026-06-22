@@ -210,6 +210,36 @@ def test_jd_resume_rejects_empty_resume_text(isolated_env):
     assert response.status_code == 422
 
 
+def test_jd_resume_rejects_whitespace_only_jd_text(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/jd-resume",
+            json={"jd_text": "   ", "resume_text": "valid resume", "title": "Role"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_jd_resume_rejects_whitespace_only_resume_text(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/jd-resume",
+            json={"jd_text": "valid JD", "resume_text": "\n\t ", "title": "Role"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_jd_resume_accepts_padded_but_meaningful_text(isolated_env):
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/jd-resume",
+            json={"jd_text": "  AI PM JD  ", "resume_text": "  AI resume  ", "title": "Role"},
+        )
+
+    assert response.status_code == 200
+
+
 def test_interview_answer_rejects_empty_run_id(isolated_env):
     with TestClient(app) as client:
         response = client.post(

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class JDResumeRequest(BaseModel):
@@ -9,6 +9,13 @@ class JDResumeRequest(BaseModel):
     title: str = "Sample AI Product Manager"
     company: str | None = None
     run_id: str | None = None
+
+    @field_validator("jd_text", "resume_text")
+    @classmethod
+    def reject_blank_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank or whitespace-only")
+        return value
 
 
 class JDResumeResult(BaseModel):
