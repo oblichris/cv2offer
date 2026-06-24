@@ -165,6 +165,18 @@ def tracking_summary(db_path: Path | None = None, limit: int = 5) -> dict[str, A
                 (limit,),
             ).fetchall()
         ]
+        recent_interview_prep_packs = [
+            dict(row)
+            for row in conn.execute(
+                """
+                SELECT id, job_id, output_path, question_count, created_at
+                FROM interview_prep_packs
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        ]
         recent_resume_versions = [
             dict(row)
             for row in conn.execute(
@@ -205,6 +217,7 @@ def tracking_summary(db_path: Path | None = None, limit: int = 5) -> dict[str, A
         "counts": counts,
         "recent_jobs": recent_jobs,
         "recent_resume_versions": recent_resume_versions,
+        "recent_interview_prep_packs": recent_interview_prep_packs,
         "recent_sessions": recent_sessions,
         "recent_events": recent_events,
     }
