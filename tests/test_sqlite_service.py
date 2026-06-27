@@ -36,6 +36,12 @@ def test_tracking_summary_counts_and_recent_rows(isolated_env):
         db_path=isolated_env.db_path,
     )
     sqlite_service.create_resume_version(job_id, "outputs/resumes/sample.md", db_path=isolated_env.db_path)
+    sqlite_service.create_interview_prep_pack(
+        output_path="outputs/interview_50q/sample.md",
+        question_count=5,
+        job_id=job_id,
+        db_path=isolated_env.db_path,
+    )
     sqlite_service.create_session("interview_prep", "running", "outputs/sessions/sample.md", db_path=isolated_env.db_path)
     sqlite_service.record_event("run-1", "jd_parse", "Parsed JD", db_path=isolated_env.db_path)
 
@@ -43,9 +49,27 @@ def test_tracking_summary_counts_and_recent_rows(isolated_env):
 
     assert summary["counts"]["jobs"] == 1
     assert summary["counts"]["resume_versions"] == 1
+    assert summary["counts"]["interview_prep_packs"] == 1
     assert summary["counts"]["sessions"] == 1
     assert summary["counts"]["events"] == 1
     assert summary["recent_jobs"][0]["title"] == "AI Product Manager"
+
+
+def test_tracking_summary_lists_recent_interview_prep_packs_ordered(isolated_env):
+    job_id = sqlite_service.create_job(title="Backend Engineer", jd_text="JD", db_path=isolated_env.db_path)
+    first = sqlite_service.create_interview_prep_pack(
+        output_path="outputs/interview_50q/first.md", question_count=5, job_id=job_id, db_path=isolated_env.db_path
+    )
+    second = sqlite_service.create_interview_prep_pack(
+        output_path="outputs/interview_50q/second.md", question_count=50, job_id=job_id, db_path=isolated_env.db_path
+    )
+
+    prep_packs = sqlite_service.tracking_summary(isolated_env.db_path)["recent_interview_prep_packs"]
+
+    assert [pack["id"] for pack in prep_packs] == [second, first]
+    assert prep_packs[0]["output_path"] == "outputs/interview_50q/second.md"
+    assert prep_packs[0]["question_count"] == 50
+    assert prep_packs[1]["output_path"] == "outputs/interview_50q/first.md"
 
 
 def test_update_session_status_persists_new_status(isolated_env):

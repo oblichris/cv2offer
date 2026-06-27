@@ -236,6 +236,9 @@ function renderTracking(payload) {
   const jobs = (payload.recent_jobs || [])
     .map((job) => `<li><strong>${escapeHtml(job.title)}</strong><span>fit ${job.fit_score ?? "-"} / ${escapeHtml(job.status)}</span></li>`)
     .join("");
+  const prepPacks = (payload.recent_interview_prep_packs || [])
+    .map((pack) => `<li><strong>${pack.question_count ?? 0} Q</strong><span>${escapeHtml(pack.output_path || "")}</span></li>`)
+    .join("");
   const sessions = (payload.recent_sessions || [])
     .map((session) => `<li><strong>${escapeHtml(session.kind)}</strong><span>${escapeHtml(session.status)} / ${escapeHtml(session.output_path || "")}</span></li>`)
     .join("");
@@ -248,6 +251,10 @@ function renderTracking(payload) {
       <div>
         <h3>Recent Jobs</h3>
         <ul>${jobs || "<li><span>No jobs yet.</span></li>"}</ul>
+      </div>
+      <div>
+        <h3>Recent Prep Packs</h3>
+        <ul>${prepPacks || "<li><span>No prep packs yet.</span></li>"}</ul>
       </div>
       <div>
         <h3>Recent Sessions</h3>
