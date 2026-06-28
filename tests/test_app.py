@@ -335,6 +335,50 @@ def test_active_context_update_rejects_empty_qa(isolated_env):
     assert response.status_code == 422
 
 
+def test_active_context_update_rejects_whitespace_only_jd(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "   ", "resume": "valid resume", "qa": "valid qa"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_active_context_update_rejects_whitespace_only_resume(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "valid jd", "resume": "\n\t ", "qa": "valid qa"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_active_context_update_rejects_whitespace_only_qa(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "valid jd", "resume": "valid resume", "qa": "  \n"},
+        )
+
+    assert response.status_code == 422
+
+
+def test_active_context_update_accepts_padded_but_meaningful_text(isolated_env):
+    with TestClient(app) as client:
+        response = client.put(
+            "/api/context/active",
+            json={"jd": "  real JD  ", "resume": "  real resume  ", "qa": "  real qa  "},
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["jd"] == "  real JD  "
+    assert payload["resume"] == "  real resume  "
+    assert payload["qa"] == "  real qa  "
+
+
 def test_interview_session_start_rejects_zero_question_count(isolated_env, tmp_path):
     jd = tmp_path / "jd.md"
     resume = tmp_path / "resume.md"
