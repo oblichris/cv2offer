@@ -15,7 +15,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from server.config import get_settings
 from server.events import sse_lines
@@ -45,6 +45,13 @@ class ActiveContextUpdateRequest(BaseModel):
     jd: str = Field(..., min_length=1)
     resume: str = Field(..., min_length=1)
     qa: str = Field(..., min_length=1)
+
+    @field_validator("jd", "resume", "qa")
+    @classmethod
+    def reject_blank_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank or whitespace-only")
+        return value
 
 
 def ensure_runtime_dirs() -> None:
